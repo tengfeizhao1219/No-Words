@@ -3,7 +3,11 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "npm ci --legacy-peer-deps",
   "outputDirectory": "dist",
-  "public": true
+  "public": true,
+  "regions": ["hnd1"],
+  "functions": {
+    "maxDuration": 60
+  }
 }
