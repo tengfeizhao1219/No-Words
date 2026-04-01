@@ -6,8 +6,5 @@
   "installCommand": "npm ci --legacy-peer-deps",
   "outputDirectory": "dist",
   "public": true,
-  "regions": ["hnd1"],
-  "functions": {
-    "maxDuration": 60
-  }
+  "regions": ["hnd1"]
 }
