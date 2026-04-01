@@ -29,8 +29,15 @@ CREATE TABLE IF NOT EXISTS public.words (
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   word TEXT NOT NULL,
   translation TEXT NOT NULL,
+  phonetic TEXT,  -- 发音
+  audio_url TEXT,  -- 发音音频 URL
+  meanings JSONB,  -- 详细释义 [{pos: string, defs: [{def: string, example: string}]}]
+  roots JSONB,  -- 词根分析 [{part: string, meaning: string, type: string}]
+  tip TEXT,  -- 记忆技巧
   original_text TEXT,  -- 原句（如果是句子翻译）
   mastered BOOLEAN DEFAULT FALSE,  -- 是否已掌握
+  level INTEGER DEFAULT 0,  -- 记忆等级（0-6，对应艾宾浩斯曲线）
+  next_review TIMESTAMPTZ,  -- 下次复习时间
   review_count INTEGER DEFAULT 0,  -- 复习次数
   last_reviewed_at TIMESTAMPTZ,  -- 上次复习时间
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -41,6 +48,8 @@ CREATE TABLE IF NOT EXISTS public.words (
 CREATE INDEX IF NOT EXISTS idx_words_user_id ON public.words(user_id);
 CREATE INDEX IF NOT EXISTS idx_words_created_at ON public.words(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_words_mastered ON public.words(user_id, mastered);
+CREATE INDEX IF NOT EXISTS idx_words_next_review ON public.words(user_id, next_review);
+CREATE INDEX IF NOT EXISTS idx_words_level ON public.words(user_id, level);
 
 -- 启用行级安全策略（RLS）
 ALTER TABLE public.words ENABLE ROW LEVEL SECURITY;
@@ -101,15 +110,28 @@ SELECT
   user_id,
   word,
   translation,
+  phonetic,
+  audio_url,
+  meanings,
+  roots,
+  tip,
+  level,
+  next_review,
   review_count,
-  last_reviewed_at,
+  mastered,
   CASE
-    WHEN last_reviewed_at IS NULL THEN 0  -- 从未复习，优先级最高
-    WHEN mastered = FALSE THEN 1  -- 未掌握，优先级次高
-    ELSE 2  -- 已掌握，优先级最低
-  END as priority
+    WHEN mastered = TRUE THEN 3  -- 已掌握，优先级最低
+    WHEN next_review IS NULL THEN 0  -- 从未复习，优先级最高
+    WHEN next_review <= NOW() THEN 1  -- 到期需要复习
+    ELSE 2  -- 未到期
+  END as priority,
+  CASE
+    WHEN next_review IS NULL THEN 0
+    WHEN next_review <= NOW() THEN 0
+    ELSE EXTRACT(DAY FROM (next_review - NOW()))::INTEGER
+  END as days_until_review
 FROM public.words
-ORDER BY priority, last_reviewed_at ASC NULLS FIRST;
+ORDER BY priority, next_review ASC NULLS FIRST;
 
 -- ============================================
 -- 完成提示
