@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '../lib/supabase';
 
 /**
  * 用户认证服务
@@ -112,8 +112,8 @@ export const wordService = {
       .from('words')
       .select('*')
       .eq('user_id', user.id)
-      .order('mastered', { ascending: false }) // 未掌握的在前
-      .order('last_reviewed_at', { ascending: true, nullsFirst: true }) // 从未复习的在前
+      .order('mastered', { ascending: false })
+      .order('last_reviewed_at', { ascending: true, nullsFirst: true })
       .limit(20);
 
     if (error) throw error;
