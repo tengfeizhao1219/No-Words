@@ -121,24 +121,60 @@ export const wordService = {
   },
 };
 
+import { translateText, detectTextType, getPronunciationUrl, testAPIConnection } from './youdao-translation';
+import type { TranslationResult } from './youdao-translation';
+
 /**
- * 翻译服务（对接有道 API）
- * 注意：实际使用时需要在后端调用，避免暴露密钥
+ * 翻译服务（集成有道翻译API）
  */
 export const translationService = {
   async translate(query: string, from = 'auto', to = 'zh-CHS') {
-    // TODO: 实现有道翻译 API 调用
-    // 由于需要保护 API 密钥，建议通过后端服务调用
-    // 这里先返回模拟数据
-    
-    console.log('Translating:', query);
-    
-    // 模拟翻译结果（临时）
-    return {
-      query,
-      translation: `[翻译] ${query}`,
-      from,
-      to,
-    };
+    try {
+      // 调用有道翻译API
+      const result = await translateText(query);
+      
+      return {
+        query: result.query,
+        translation: result.translation,
+        from,
+        to,
+        phonetic: result.phonetic,
+        usPhonetic: result.usPhonetic,
+        ukPhonetic: result.ukPhonetic,
+        explains: result.explains || [],
+        webTranslations: result.webTranslations || [],
+        speakUrl: result.speakUrl,
+        textType: detectTextType(query),
+        errorCode: result.errorCode
+      };
+    } catch (error) {
+      console.error('翻译服务错误:', error);
+      
+      // 返回错误信息
+      return {
+        query,
+        translation: `翻译失败: ${query}`,
+        from,
+        to,
+        explains: ['请检查网络连接或稍后重试'],
+        textType: detectTextType(query),
+        errorCode: '999'
+      };
+    }
   },
+  
+  // 测试API连接
+  async testConnection() {
+    return await testAPIConnection();
+  },
+  
+  // 获取发音URL
+  getPronunciationUrl(result: any): string | null {
+    return getPronunciationUrl(result);
+  },
+  
+  // 判断文本类型
+  detectTextType(text: string): 'word' | 'sentence' {
+    return detectTextType(text);
+  }
 };

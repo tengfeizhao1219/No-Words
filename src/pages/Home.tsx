@@ -9,6 +9,26 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
+  // 发音功能
+  const handleSpeak = () => {
+    if (!translation) return;
+    
+    if (translation.audioUrl) {
+      // 如果有有道发音URL，使用音频播放
+      const audio = new Audio(translation.audioUrl);
+      audio.play().catch(console.error);
+    } else if ('speechSynthesis' in window) {
+      // 使用浏览器语音合成
+      const utterance = new SpeechSynthesisUtterance(translation.word);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.85;
+      utterance.pitch = 1;
+      speechSynthesis.speak(utterance);
+    } else {
+      console.warn('当前浏览器不支持语音合成');
+    }
+  };
+
   const handleTranslate = async () => {
     if (!query.trim()) return;
     
@@ -20,14 +40,29 @@ export default function Home() {
       // 分析单词（词根拆解 + 记忆技巧）
       const analysis = analyzeWord(result.query, [{ defs: [{ def: result.translation }] }]);
       
+      // 使用API返回的音标信息
+      const phonetic = result.phonetic || result.usPhonetic || result.ukPhonetic || '';
+      
       setTranslation({
         ...analysis,
-        phonetic: '', // TODO: 从 API 获取
-        audioUrl: ''  // TODO: 从 API 获取
+        phonetic: phonetic,
+        audioUrl: result.speakUrl || '',
+        explains: result.explains || [],
+        webTranslations: result.webTranslations || []
       });
       setIsAdded(false);
     } catch (error) {
       console.error('Translation error:', error);
+      
+      // 显示错误信息
+      const analysis = analyzeWord(query, [{ defs: [{ def: '翻译服务暂时不可用' }] }]);
+      setTranslation({
+        ...analysis,
+        phonetic: '',
+        audioUrl: '',
+        explains: ['请检查网络连接或稍后重试']
+      });
+      setIsAdded(false);
     } finally {
       setLoading(false);
     }
@@ -115,11 +150,12 @@ export default function Home() {
                   <span className="text-purple-600 font-medium bg-purple-50 px-3 py-1 rounded-lg">
                     {translation.phonetic}
                   </span>
-                  {translation.audioUrl && (
-                    <button className="flex items-center gap-1 text-purple-600 hover:bg-purple-50 px-3 py-1 rounded-lg transition-colors">
-                      🔊 朗读
-                    </button>
-                  )}
+                  <button 
+                    onClick={handleSpeak}
+                    className="flex items-center gap-1 text-purple-600 hover:bg-purple-50 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    🔊 朗读
+                  </button>
                 </div>
               )}
             </div>

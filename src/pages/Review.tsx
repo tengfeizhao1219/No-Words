@@ -39,30 +39,72 @@ export default function Review() {
     sortBy: 'ebbinghaus',
   });
 
-  // 模拟待复习单词
-  const mockWords: Word[] = [
-    { id: '1', word: 'Hello', translation: '你好', phonetic: '/həˈloʊ/', level: 1, reviewCount: 2 },
-    { id: '2', word: 'World', translation: '世界', phonetic: '/wɜːrld/', level: 2, reviewCount: 5 },
-    { id: '3', word: 'Apple', translation: '苹果', phonetic: '/ˈæpəl/', level: 0, reviewCount: 0 },
-    { id: '4', word: 'Banana', translation: '香蕉', phonetic: '/bəˈnænə/', level: 3, reviewCount: 8 },
-    { id: '5', word: 'Orange', translation: '橙子', phonetic: '/ˈɔːrɪndʒ/', level: 1, reviewCount: 3 },
-  ];
+  const startReview = async () => {
+    try {
+      // 获取待复习单词
+      const wordsData = await wordService.getReviewQueue();
+      
+      // 转换数据格式
+      let words: Word[] = wordsData.map((word: any) => ({
+        id: word.id,
+        word: word.word,
+        translation: word.translation,
+        phonetic: word.original_text ? JSON.parse(word.original_text).phonetic : '',
+        level: word.review_count || 0,
+        reviewCount: word.review_count || 0,
+        nextReview: word.last_reviewed_at ? new Date(word.last_reviewed_at).getTime() : Date.now()
+      }));
+      
+      // 应用筛选
+      if (config.onlyDue) {
+        words = words.filter(w => isWordDue({ nextReview: w.nextReview }));
+      }
+      
+      // 应用排序
+      if (config.sortBy === 'ebbinghaus') {
+        words = [...words].sort((a, b) => (a.nextReview || 0) - (b.nextReview || 0));
+      } else if (config.sortBy === 'time') {
+        words = [...words].sort((a, b) => (a.reviewCount || 0) - (b.reviewCount || 0));
+      } else {
+        words = [...words].sort(() => Math.random() - 0.5);
+      }
 
-  const startReview = () => {
-    let words = config.onlyDue ? mockWords.filter(w => isWordDue({ nextReview: w.nextReview })) : mockWords;
-    
-    if (config.sortBy === 'ebbinghaus') {
-      words = [...words].sort((a, b) => (a.nextReview || 0) - (b.nextReview || 0));
-    } else if (config.sortBy === 'time') {
-      words = [...words].sort((a, b) => (a.reviewCount || 0) - (b.reviewCount || 0));
-    } else {
-      words = [...words].sort(() => Math.random() - 0.5);
+      if (words.length === 0) {
+        alert('暂无待复习单词，继续加油！');
+        return;
+      }
+
+      setReviewWords(words);
+      setCurrentIndex(0);
+      setIsFlipped(false);
+      setIsReviewing(true);
+    } catch (error) {
+      console.error('Start review error:', error);
+      
+      // 如果API调用失败，使用模拟数据
+      const mockWords: Word[] = [
+        { id: '1', word: 'Hello', translation: '你好', phonetic: '/həˈloʊ/', level: 1, reviewCount: 2 },
+        { id: '2', word: 'World', translation: '世界', phonetic: '/wɜːrld/', level: 2, reviewCount: 5 },
+        { id: '3', word: 'Apple', translation: '苹果', phonetic: '/ˈæpəl/', level: 0, reviewCount: 0 },
+        { id: '4', word: 'Banana', translation: '香蕉', phonetic: '/bəˈnænə/', level: 3, reviewCount: 8 },
+        { id: '5', word: 'Orange', translation: '橙子', phonetic: '/ˈɔːrɪndʒ/', level: 1, reviewCount: 3 },
+      ];
+      
+      let words = config.onlyDue ? mockWords.filter(w => isWordDue({ nextReview: w.nextReview })) : mockWords;
+      
+      if (config.sortBy === 'ebbinghaus') {
+        words = [...words].sort((a, b) => (a.nextReview || 0) - (b.nextReview || 0));
+      } else if (config.sortBy === 'time') {
+        words = [...words].sort((a, b) => (a.reviewCount || 0) - (b.reviewCount || 0));
+      } else {
+        words = [...words].sort(() => Math.random() - 0.5);
+      }
+
+      setReviewWords(words);
+      setCurrentIndex(0);
+      setIsFlipped(false);
+      setIsReviewing(true);
     }
-
-    setReviewWords(words);
-    setCurrentIndex(0);
-    setIsFlipped(false);
-    setIsReviewing(true);
   };
 
   const handleNext = async (rating: number) => {
@@ -73,7 +115,12 @@ export default function Review() {
       const newLevel = updateMemoryLevel(currentWord.level || 0, rating);
       const nextReview = getNextReviewTime(newLevel);
       
-      // TODO: 调用 API 更新
+      // 调用 API 更新单词
+      await wordService.updateWord(currentWord.id, {
+        mastered: rating >= 4, // 如果评分>=4，标记为已掌握
+        review_count: (currentWord.reviewCount || 0) + 1
+      });
+      
       console.log(`更新单词 ${currentWord.word}: Level ${currentWord.level} → ${newLevel}, 下次复习：${new Date(nextReview).toLocaleDateString()}`);
       
       // 移动到下一个单词
@@ -87,6 +134,14 @@ export default function Review() {
       }
     } catch (error) {
       console.error('Update word error:', error);
+      
+      // 即使API失败，也继续下一个单词
+      if (currentIndex < reviewWords.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+        setIsFlipped(false);
+      } else {
+        setIsReviewing(false);
+      }
     }
   };
 

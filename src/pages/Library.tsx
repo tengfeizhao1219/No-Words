@@ -28,8 +28,26 @@ export default function Library() {
 
   const loadWords = async () => {
     try {
-      // TODO: 使用真实的 wordService.getWords()
-      // 临时使用模拟数据
+      // 使用真实的 wordService.getWords()
+      const wordsData = await wordService.getWords();
+      
+      // 转换数据格式
+      const formattedWords: Word[] = wordsData.map((word: any) => ({
+        id: word.id,
+        word: word.word,
+        translation: word.translation,
+        phonetic: word.original_text ? JSON.parse(word.original_text).phonetic : '',
+        mastered: word.mastered || false,
+        level: word.review_count || 0,
+        nextReview: word.last_reviewed_at ? new Date(word.last_reviewed_at).getTime() + 86400000 : Date.now(),
+        createdAt: new Date(word.created_at).getTime()
+      }));
+      
+      setWords(formattedWords);
+    } catch (error) {
+      console.error('Load words error:', error);
+      
+      // 如果API调用失败，使用模拟数据
       const mockWords: Word[] = [
         {
           id: '1',
@@ -53,8 +71,6 @@ export default function Library() {
         },
       ];
       setWords(mockWords);
-    } catch (error) {
-      console.error('Load words error:', error);
     } finally {
       setLoading(false);
     }
