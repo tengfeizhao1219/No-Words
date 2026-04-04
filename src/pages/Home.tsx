@@ -3,7 +3,12 @@ import { translationService, wordService } from '../services/api';
 import { analyzeWord } from '../lib/word-analysis';
 import type { WordAnalysis } from '../lib/word-analysis';
 
-export default function Home() {
+interface HomeProps {
+  user: any;
+  onLoginRequest: () => void;
+}
+
+export default function Home({ user, onLoginRequest }: HomeProps) {
   const [query, setQuery] = useState('');
   const [translation, setTranslation] = useState<WordAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
@@ -70,6 +75,12 @@ export default function Home() {
 
   const handleAddToLibrary = async () => {
     if (!translation) return;
+    
+    // 检查用户是否登录
+    if (!user) {
+      onLoginRequest();
+      return;
+    }
     
     try {
       await wordService.saveWord(
@@ -219,6 +230,21 @@ export default function Home() {
           <div className="text-center py-16">
             <div className="text-6xl mb-4">📖</div>
             <p className="text-gray-400">输入单词开始查询</p>
+            
+            {/* 登录提示 */}
+            {!user && (
+              <div className="mt-8 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl max-w-md mx-auto">
+                <p className="text-sm text-gray-600 mb-3">
+                  💡 登录后可以保存单词到云端，多设备同步学习
+                </p>
+                <button
+                  onClick={onLoginRequest}
+                  className="px-4 py-2 text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-card hover:shadow-card-hover"
+                >
+                  立即登录
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

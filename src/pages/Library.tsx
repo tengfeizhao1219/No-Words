@@ -3,6 +3,11 @@ import { wordService } from '../services/api';
 import { isWordDue, countDueWords, getDaysUntilReview } from '../lib/memory-curve';
 import type { HideMode, CardRevealState } from '../types/hide-mode';
 
+interface LibraryProps {
+  user: any;
+  onLoginRequest: () => void;
+}
+
 interface Word {
   id: string;
   word: string;
@@ -15,7 +20,7 @@ interface Word {
   createdAt?: number;
 }
 
-export default function Library() {
+export default function Library({ user, onLoginRequest }: LibraryProps) {
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
   const [hideMode, setHideMode] = useState<HideMode>('none');
@@ -28,6 +33,13 @@ export default function Library() {
 
   const loadWords = async () => {
     try {
+      if (!user) {
+        // 用户未登录，显示空状态
+        setWords([]);
+        setLoading(false);
+        return;
+      }
+      
       // 使用真实的 wordService.getWords()
       const wordsData = await wordService.getWords();
       
@@ -299,12 +311,27 @@ export default function Library() {
         {/* 空状态 */}
         {filteredWords.length === 0 && (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">📭</div>
+            <div className="text-6xl mb-4">
+              {!user ? '🔒' : '📭'}
+            </div>
             <p className="text-gray-500">
-              {filter === 'due' ? '暂无待复习单词，继续加油！' : 
+              {!user ? '请登录后查看词库' : 
+               filter === 'due' ? '暂无待复习单词，继续加油！' : 
                filter === 'mastered' ? '还没有掌握的单词' : 
                '词库是空的，去搜索添加单词吧'}
             </p>
+            
+            {/* 登录提示 */}
+            {!user && (
+              <div className="mt-6">
+                <button
+                  onClick={onLoginRequest}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all shadow-card hover:shadow-card-hover"
+                >
+                  立即登录
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

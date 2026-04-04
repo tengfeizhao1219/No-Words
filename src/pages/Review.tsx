@@ -9,6 +9,11 @@ import {
   countDueWords
 } from '../lib/memory-curve';
 
+interface ReviewProps {
+  user: any;
+  onLoginRequest: () => void;
+}
+
 interface Word {
   id: string;
   word: string;
@@ -27,7 +32,7 @@ interface ReviewConfig {
   sortBy: 'ebbinghaus' | 'time' | 'random';
 }
 
-export default function Review() {
+export default function Review({ user, onLoginRequest }: ReviewProps) {
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewWords, setReviewWords] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,6 +45,12 @@ export default function Review() {
   });
 
   const startReview = async () => {
+    // 检查用户是否登录
+    if (!user) {
+      onLoginRequest();
+      return;
+    }
+    
     try {
       // 获取待复习单词
       const wordsData = await wordService.getReviewQueue();
@@ -370,13 +381,29 @@ export default function Review() {
         </div>
 
         {/* 开始复习按钮 */}
-        <button
-          onClick={startReview}
-          disabled={dueCount === 0}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-card hover:shadow-card-hover disabled:shadow-none text-lg"
-        >
-          {dueCount > 0 ? '开始复习 →' : '暂无待复习单词'}
-        </button>
+        {!user ? (
+          <div className="text-center">
+            <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl">
+              <p className="text-sm text-gray-600 mb-3">
+                🔒 登录后可以开始复习，云端同步学习进度
+              </p>
+              <button
+                onClick={onLoginRequest}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all shadow-card hover:shadow-card-hover"
+              >
+                立即登录
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={startReview}
+            disabled={dueCount === 0}
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-bold py-5 px-6 rounded-2xl transition-all shadow-card hover:shadow-card-hover disabled:shadow-none text-lg"
+          >
+            {dueCount > 0 ? '开始复习 →' : '暂无待复习单词'}
+          </button>
+        )}
 
         {/* 说明 */}
         <div className="mt-8 bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-6">

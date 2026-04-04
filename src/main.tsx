@@ -2,6 +2,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { initPerformanceMonitoring } from './lib/performance'
+
+// 初始化性能监控
+initPerformanceMonitoring();
 
 // PWA Service Worker 注册（简化版）
 if ('serviceWorker' in navigator) {
