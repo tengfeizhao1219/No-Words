@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import HomeRedesigned from './pages/HomeRedesigned';
 import LibrarySimplified from './pages/LibrarySimplified';
-import ReviewSimplified from './pages/ReviewSimplified';
+import ReviewSimplifiedFixed from './pages/ReviewSimplifiedFixed';
 import AuthModal from './components/AuthModal';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import DataExport from './components/DataExport';
@@ -64,7 +64,7 @@ export default function App() {
       case 'library':
         return <LibrarySimplified user={user} onLoginRequest={() => setShowAuthModal(true)} />;
       case 'review':
-        return <ReviewSimplified user={user} onLoginRequest={() => setShowAuthModal(true)} />;
+        return <ReviewSimplifiedFixed user={user} onLoginRequest={() => setShowAuthModal(true)} />;
     }
   };
 
