@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import Home from './pages/Home';
-import Library from './pages/Library';
-import Review from './pages/Review';
+import HomeRedesigned from './pages/HomeRedesigned';
+import LibrarySimplified from './pages/LibrarySimplified';
+import ReviewSimplified from './pages/ReviewSimplified';
 import AuthModal from './components/AuthModal';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import DataExport from './components/DataExport';
@@ -60,11 +60,11 @@ export default function App() {
 
     switch (currentPage) {
       case 'home':
-        return <Home user={user} onLoginRequest={() => setShowAuthModal(true)} />;
+        return <HomeRedesigned user={user} onLoginRequest={() => setShowAuthModal(true)} />;
       case 'library':
-        return <Library user={user} onLoginRequest={() => setShowAuthModal(true)} />;
+        return <LibrarySimplified user={user} onLoginRequest={() => setShowAuthModal(true)} />;
       case 'review':
-        return <Review user={user} onLoginRequest={() => setShowAuthModal(true)} />;
+        return <ReviewSimplified user={user} onLoginRequest={() => setShowAuthModal(true)} />;
     }
   };
 
