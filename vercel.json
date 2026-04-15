@@ -10,16 +10,6 @@
       "destination": "/index.html"
     }
   ],
-  "env": {
-    "VITE_SUPABASE_URL": {
-      "description": "Supabase项目URL",
-      "value": "https://your-project.supabase.co"
-    },
-    "VITE_SUPABASE_ANON_KEY": {
-      "description": "Supabase匿名密钥",
-      "value": "your-anon-key"
-    }
-  },
   "regions": ["hkg1"],
   "public": true,
   "github": {
