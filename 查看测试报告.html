@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看 No-Words 测试报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .report-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .report-card h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .view-button {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .view-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .view-button i {
+            margin-right: 10px;
+        }
+        
+        .details {
+            margin-top: 30px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 可视化测试报告</h1>
+            <div class="subtitle">No-Words 项目联调测试结果</div>
+        </div>
+        
+        <div class="content">
+            <div class="report-card">
+                <h2>🎯 测试概览</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #3b82f6;">34</div>
+                        <div class="stat-label">总测试用例</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #10b981;">100%</div>
+                        <div class="stat-label">通过率</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #8b5cf6;">61.53%</div>
+                        <div class="stat-label">测试覆盖率</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #f59e0b;">3</div>
+                        <div class="stat-label">测试文件</div>
+                    </div>
+                </div>
+                
+                <a href="可视化测试报告.html" class="view-button" target="_blank">
+                    <span>📈 查看完整可视化报告</span>
+                </a>
+            </div>
+            
+            <div class="report-card">
+                <h2>📋 测试详情</h2>
+                
+                <div class="details">
+                    <div class="detail-item">
+                        <span class="detail-label">测试框架</span>
+                        <span class="detail-value">Vitest v4.1.4</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">测试类型</span>
+                        <span class="detail-value">单元测试 + 组件测试</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">核心逻辑覆盖率</span>
+                        <span class="detail-value">100%</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">测试技能</span>
+                        <span class="detail-value">test-runner, api-test-automation, code-refactoring</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">GitHub 同步</span>
+                        <span class="detail-value">✅ 已完成</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <h2>📁 文件位置</h2>
+                <p style="color: #475569; margin-bottom: 15px; line-height: 1.6;">
+                    完整的可视化测试报告已生成，包含交互式图表和详细分析。
+                </p>
+                
+                <div class="detail-item">
+                    <span class="detail-label">报告文件</span>
+                    <span class="detail-value">no-words-project/可视化测试报告.html</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">测试报告</span>
+                    <span class="detail-value">no-words-project/TESTING_REPORT.md</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">测试配置</span>
+                    <span class="detail-value">no-words-project/vitest.config.ts</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>测试完成时间: 2026-04-18 10:54 GMT+8 | 项目: No-Words 单词学习应用</p>
+        </div>
+    </div>
+    
+    <script>
+        // 添加点击效果
+        document.querySelector('.view-button').addEventListener('click', function(e) {
+            // 添加点击动画
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+        
+        // 显示当前时间
+        const now = new Date();
+        const timeStr = now.toLocaleString('zh-CN', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false 
+        });
+        
+        // 更新页脚时间
+        document.querySelector('.footer p').textContent = 
+            `测试完成时间: ${timeStr} | 项目: No-Words 单词学习应用`;
+    </script>
+</body>
+</html>
